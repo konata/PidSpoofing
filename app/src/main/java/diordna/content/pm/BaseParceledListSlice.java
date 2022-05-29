@@ -162,33 +162,7 @@ abstract class BaseParceledListSlice<T> implements Parcelable {
             }
             if (i < N) {
                 dest.writeInt(0);
-                IBinder retriever = locker; /* new Binder() {
-                    @Override
-                    protected boolean onTransact(int code, Parcel data, Parcel reply, int flags)
-                            throws RemoteException {
-                        if (code != FIRST_CALL_TRANSACTION) {
-                            return super.onTransact(code, data, reply, flags);
-                        }
-                        int i = data.readInt();
-                        if (DEBUG) Log.d(TAG, "Writing more @" + i + " of " + N);
-                        while (i < N && reply.dataSize() < MAX_IPC_SIZE) {
-                            reply.writeInt(1);
-
-                            final T parcelable = mList.get(i);
-                            verifySameType(listElementClass, parcelable.getClass());
-                            writeElement(parcelable, reply, callFlags);
-
-                            if (DEBUG) Log.d(TAG, "Wrote extra #" + i + ": " + mList.get(i));
-                            i++;
-                        }
-                        if (i < N) {
-                            if (DEBUG) Log.d(TAG, "Breaking @" + i + " of " + N);
-                            reply.writeInt(0);
-                        }
-                        return true;
-                    }
-                };
-                */
+                IBinder retriever = locker;
                 if (DEBUG) Log.d(TAG, "Breaking @" + i + " of " + N + ": retriever=" + retriever);
                 dest.writeStrongBinder(retriever);
             }

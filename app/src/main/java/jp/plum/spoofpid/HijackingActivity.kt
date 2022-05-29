@@ -13,15 +13,10 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.verticalLayout
 import kotlin.system.exitProcess
 
-/*
-1. how to fix creator name
-2. will IBinder as? Binder work
-*/
 class HijackingActivity : AppCompatActivity() {
     companion object {
         private const val authority = "com.google.android.packageinstaller.wear.provider"
         const val uri = "content://$authority"
-        const val HijackingKey = "HijackingKey"
     }
 
     private val slice by lazy {

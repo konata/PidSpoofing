@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
                                         "natsuki",
                                         "request for position: ${data.readInt()} block begin"
                                     )
+                                    // TODO:  here you can spawn process and rolling system pid to target pid(:hijacking)
                                     Thread.sleep(5000)
                                     (0 until 5).forEach {
                                         reply?.writeInt(1)
