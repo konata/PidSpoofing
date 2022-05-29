@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity() {
                                             "request for position: ${data.readInt()} block begin"
                                         )
                                         val toPid = queue.take()
+                                        Log.e(TAG, "we wish rolling system process to $toPid")
                                         // TODO:  here you can spawn process and rolling system pid to target pid (:hijack)
                                         Thread.sleep(5000)
                                         (0 until HijackActivity.source.size - HijackActivity.limit).forEach {
