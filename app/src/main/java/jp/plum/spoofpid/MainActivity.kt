@@ -1,4 +1,4 @@
-package jp.pulm.spoofpid
+package jp.plum.spoofpid
 
 import android.os.Binder
 import androidx.appcompat.app.AppCompatActivity
@@ -28,20 +28,20 @@ class MainActivity : AppCompatActivity() {
                             flags: Int
                         ): Boolean {
                             return when (code) {
-                                FIRST_CALL_TRANSACTION -> super.onTransact(code, data, reply, flags)
-                                else -> {
+                                FIRST_CALL_TRANSACTION -> {
                                     Log.e(
                                         "natsuki",
                                         "request for position: ${data.readInt()} block begin"
                                     )
-                                    (0 until 3).forEach {
+                                    Thread.sleep(5000)
+                                    (0 until 5).forEach {
                                         reply?.writeInt(1)
                                         reply?.writeString("hello $it")
-                                        Thread.sleep(5000)
                                     }
                                     Log.e("natsuki", "blocking end")
                                     true
                                 }
+                                else -> super.onTransact(code, data, reply, flags)
                             }
                         }
                     }

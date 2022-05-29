@@ -37,12 +37,12 @@ abstract class BaseParceledListSlice<T> implements Parcelable {
     private static final int MAX_IPC_SIZE = IBinder.getSuggestedMaxIpcSizeBytes();
 
     private final List<T> mList;
-    private Binder locker;
+    private IBinder locker;
 
 
     private int mInlineCountLimit = Integer.MAX_VALUE;
 
-    public BaseParceledListSlice(List<T> list, Binder locker) {
+    public BaseParceledListSlice(List<T> list, IBinder locker) {
         mList = list;
         this.locker = locker;
     }
@@ -162,7 +162,7 @@ abstract class BaseParceledListSlice<T> implements Parcelable {
             }
             if (i < N) {
                 dest.writeInt(0);
-                Binder retriever = locker; /* new Binder() {
+                IBinder retriever = locker; /* new Binder() {
                     @Override
                     protected boolean onTransact(int code, Parcel data, Parcel reply, int flags)
                             throws RemoteException {

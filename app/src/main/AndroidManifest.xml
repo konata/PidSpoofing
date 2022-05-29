@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="jp.pulm.spoofpid">
+    package="jp.plum.spoofpid">
 
     <application
         android:allowBackup="true"
@@ -10,14 +10,15 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.SpoofPid">
         <activity
-            android:name=".HijackingActivity"
-            android:exported="false" />
+            android:name="jp.plum.spoofpid.HijackingActivity"
+            android:exported="false"
+            android:process=":hijacking" />
         <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name="jp.plum.spoofpid.MainActivity"
+            android:exported="true"
+            android:process=":main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

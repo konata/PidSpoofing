@@ -17,12 +17,14 @@
 package diordna.content.pm;
 
 import android.os.Binder;
+import android.os.IBinder;
 import android.os.Parcel;
+import android.os.Parcelable;
 
 import java.util.List;
 
-public class StringParceledListSlice extends BaseParceledListSlice<String> {
-    public StringParceledListSlice(List<String> list, Binder locker) {
+public class StringParceledListSlice extends diordna.content.pm.BaseParceledListSlice<String> {
+    public StringParceledListSlice(List<String> list, IBinder locker) {
         super(list, locker);
     }
 
@@ -46,13 +48,13 @@ public class StringParceledListSlice extends BaseParceledListSlice<String> {
     }
 
     @Override
-    protected Creator<?> readParcelableCreator(Parcel from, ClassLoader loader) {
+    protected Parcelable.Creator<?> readParcelableCreator(Parcel from, ClassLoader loader) {
         return Parcel.STRING_CREATOR;
     }
 
     @SuppressWarnings("unchecked")
-    public static final ClassLoaderCreator<StringParceledListSlice> CREATOR =
-            new ClassLoaderCreator<StringParceledListSlice>() {
+    public static final Parcelable.ClassLoaderCreator<StringParceledListSlice> CREATOR =
+            new Parcelable.ClassLoaderCreator<StringParceledListSlice>() {
                 public StringParceledListSlice createFromParcel(Parcel in) {
                     return new StringParceledListSlice(in, null);
                 }
