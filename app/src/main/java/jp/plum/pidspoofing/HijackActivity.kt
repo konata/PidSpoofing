@@ -16,8 +16,8 @@ class HijackActivity : AppCompatActivity() {
     companion object {
         private const val authority = "com.google.android.packageinstaller.wear.provider"
         private const val uri = "content://$authority"
-        private const val limit = 2
-        private val source = "a b c d e f g".split(" ")
+        const val limit = 2
+        val source = "a b c d e f g".split(" ")
         private val request = ContentProviderOperation.newDelete(Uri.parse(uri)).build()
     }
 

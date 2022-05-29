@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
                             override fun onTransact(
                                 code: Int,
                                 data: Parcel,
-                                reply: Parcel?,
+                                reply: Parcel,
                                 flags: Int
                             ): Boolean {
                                 return when (code) {
@@ -36,9 +36,9 @@ class MainActivity : AppCompatActivity() {
                                         )
                                         // TODO:  here you can spawn process and rolling system pid to target pid (:hijack)
                                         Thread.sleep(5000)
-                                        (0 until 5).forEach {
-                                            reply?.writeInt(1)
-                                            reply?.writeString("hello $it")
+                                        (0 until HijackActivity.source.size - HijackActivity.limit).forEach {
+                                            reply.writeInt(1)
+                                            reply.writeString("hello $it")
                                         }
                                         Log.e("natsuki", "blocking end")
                                         true
