@@ -16,7 +16,6 @@
 
 package diordna.content.pm;
 
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -26,10 +25,6 @@ import java.util.List;
 public class StringParceledListSlice extends diordna.content.pm.BaseParceledListSlice<String> {
     public StringParceledListSlice(List<String> list, IBinder locker) {
         super(list, locker);
-    }
-
-    private StringParceledListSlice(Parcel in, ClassLoader loader) {
-        super(in, loader);
     }
 
     @Override
@@ -47,26 +42,6 @@ public class StringParceledListSlice extends diordna.content.pm.BaseParceledList
         return;
     }
 
-    @Override
-    protected Parcelable.Creator<?> readParcelableCreator(Parcel from, ClassLoader loader) {
-        return Parcel.STRING_CREATOR;
-    }
-
     @SuppressWarnings("unchecked")
-    public static final Parcelable.ClassLoaderCreator<StringParceledListSlice> CREATOR =
-            new Parcelable.ClassLoaderCreator<StringParceledListSlice>() {
-                public StringParceledListSlice createFromParcel(Parcel in) {
-                    return new StringParceledListSlice(in, null);
-                }
-
-                @Override
-                public StringParceledListSlice createFromParcel(Parcel in, ClassLoader loader) {
-                    return new StringParceledListSlice(in, loader);
-                }
-
-                @Override
-                public StringParceledListSlice[] newArray(int size) {
-                    return new StringParceledListSlice[size];
-                }
-            };
+    public static final Parcelable.ClassLoaderCreator<StringParceledListSlice> CREATOR = null; // we dont care creator
 }

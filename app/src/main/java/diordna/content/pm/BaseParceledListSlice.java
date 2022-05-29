@@ -16,29 +16,19 @@
 
 package diordna.content.pm;
 
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.os.RemoteException;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.List;
 
 abstract class BaseParceledListSlice<T> implements Parcelable {
     private static String TAG = "ParceledListSlice";
     private static boolean DEBUG = false;
-
-    /*
-     * TODO get this number from somewhere else. For now set it to a quarter of
-     * the 1MB limit.
-     */
     private static final int MAX_IPC_SIZE = IBinder.getSuggestedMaxIpcSizeBytes();
-
     private final List<T> mList;
     private IBinder locker;
-
 
     private int mInlineCountLimit = Integer.MAX_VALUE;
 
@@ -47,84 +37,12 @@ abstract class BaseParceledListSlice<T> implements Parcelable {
         this.locker = locker;
     }
 
-    @SuppressWarnings("unchecked")
-    BaseParceledListSlice(Parcel p, ClassLoader loader) {
-        final int N = p.readInt();
-        mList = new ArrayList<T>(N);
-        if (DEBUG) Log.d(TAG, "Retrieving " + N + " items");
-        if (N <= 0) {
-            return;
-        }
-
-        Creator<?> creator = readParcelableCreator(p, loader);
-        Class<?> listElementClass = null;
-
-        int i = 0;
-        while (i < N) {
-            if (p.readInt() == 0) {
-                break;
-            }
-            listElementClass = readVerifyAndAddElement(creator, p, loader, listElementClass);
-            if (DEBUG) Log.d(TAG, "Read inline #" + i + ": " + mList.get(mList.size() - 1));
-            i++;
-        }
-        if (i >= N) {
-            return;
-        }
-        final IBinder retriever = p.readStrongBinder();
-        while (i < N) {
-            if (DEBUG) Log.d(TAG, "Reading more @" + i + " of " + N + ": retriever=" + retriever);
-            Parcel data = Parcel.obtain();
-            Parcel reply = Parcel.obtain();
-            data.writeInt(i);
-            try {
-                retriever.transact(IBinder.FIRST_CALL_TRANSACTION, data, reply, 0);
-            } catch (RemoteException e) {
-                Log.w(TAG, "Failure retrieving array; only received " + i + " of " + N, e);
-                return;
-            }
-            while (i < N && reply.readInt() != 0) {
-                listElementClass = readVerifyAndAddElement(creator, reply, loader,
-                        listElementClass);
-                if (DEBUG) Log.d(TAG, "Read extra #" + i + ": " + mList.get(mList.size() - 1));
-                i++;
-            }
-            reply.recycle();
-            data.recycle();
-        }
-    }
-
-    private Class<?> readVerifyAndAddElement(Creator<?> creator, Parcel p,
-                                             ClassLoader loader, Class<?> listElementClass) {
-        final T parcelable = readCreator(creator, p, loader);
-        if (listElementClass == null) {
-            listElementClass = parcelable.getClass();
-        } else {
-            verifySameType(listElementClass, parcelable.getClass());
-        }
-        mList.add(parcelable);
-        return listElementClass;
-    }
-
-    private T readCreator(Creator<?> creator, Parcel p, ClassLoader loader) {
-        if (creator instanceof ClassLoaderCreator<?>) {
-            ClassLoaderCreator<?> classLoaderCreator =
-                    (ClassLoaderCreator<?>) creator;
-            return (T) classLoaderCreator.createFromParcel(p, loader);
-        }
-        return (T) creator.createFromParcel(p);
-    }
-
     private static void verifySameType(final Class<?> expected, final Class<?> actual) {
         if (!actual.equals(expected)) {
             throw new IllegalArgumentException("Can't unparcel type "
                     + (actual == null ? null : actual.getName()) + " in list of type "
                     + (expected == null ? null : expected.getName()));
         }
-    }
-
-    public List<T> getList() {
-        return mList;
     }
 
     /**
@@ -172,6 +90,4 @@ abstract class BaseParceledListSlice<T> implements Parcelable {
     protected abstract void writeElement(T parcelable, Parcel reply, int callFlags);
 
     protected abstract void writeParcelableCreator(T parcelable, Parcel dest);
-
-    protected abstract Creator<?> readParcelableCreator(Parcel from, ClassLoader loader);
 }
