@@ -10,9 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.PidSpoofing">
         <activity
-            android:name="jp.plum.pidspoofing.HijackingActivity"
+            android:name="jp.plum.pidspoofing.HijackActivity"
             android:exported="false"
-            android:process=":hijacking" />
+            android:process=":hijack" />
         <activity
             android:name="jp.plum.pidspoofing.MainActivity"
             android:exported="true"

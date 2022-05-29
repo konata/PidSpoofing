@@ -12,7 +12,7 @@ import org.jetbrains.anko.sdk27.coroutines.onClick
 import org.jetbrains.anko.verticalLayout
 import kotlin.system.exitProcess
 
-class HijackingActivity : AppCompatActivity() {
+class HijackActivity : AppCompatActivity() {
     companion object {
         private const val authority = "com.google.android.packageinstaller.wear.provider"
         private const val uri = "content://$authority"

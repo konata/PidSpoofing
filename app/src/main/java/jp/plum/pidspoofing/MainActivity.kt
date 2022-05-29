@@ -21,7 +21,7 @@ class MainActivity : AppCompatActivity() {
             button("Bring Binder to Hijacker") {
                 onClick {
                     startActivity(
-                        intentFor<HijackingActivity>().putExtra(Key, object : Binder() {
+                        intentFor<HijackActivity>().putExtra(Key, object : Binder() {
                             override fun onTransact(
                                 code: Int,
                                 data: Parcel,
@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
                                             TAG,
                                             "request for position: ${data.readInt()} block begin"
                                         )
-                                        // TODO:  here you can spawn process and rolling system pid to target pid (:hijacking)
+                                        // TODO:  here you can spawn process and rolling system pid to target pid (:hijack)
                                         Thread.sleep(5000)
                                         (0 until 5).forEach {
                                             reply?.writeInt(1)
