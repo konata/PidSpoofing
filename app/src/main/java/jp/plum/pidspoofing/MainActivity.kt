@@ -29,13 +29,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         verticalLayout {
-            button("Spawn System Process") {
-                onClick {
-                    Roller.spawnSystemProcess(10)
-                }
-            }
-
-
             button("setup anchor process") {
                 onClick {
                     listOf(A1::class, A2::class, A3::class).map {
@@ -101,7 +94,7 @@ class MainActivity : AppCompatActivity() {
                                         Log.e(TAG, "we wish rolling system process to $toPid")
                                         val spawned = Roller.toPid(toPid, placeholders.toList())
                                         Log.e(TAG, "we spawned to $spawned")
-                                        (0 .. HijackActivity.source.size - HijackActivity.limit).forEach {
+                                        (0..HijackActivity.source.size - HijackActivity.limit).forEach {
                                             reply.writeInt(1)
                                             reply.writeString("hello $it")
                                         }
