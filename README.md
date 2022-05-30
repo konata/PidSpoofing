@@ -19,7 +19,7 @@ our arbitrary request
 3. Employ another process to spawn and exit shell process thus to rolling the pid to someone near
    $pid-a
 4. Launch a system application into $pid-a
-5. The server identify the call in step 1 is issued from a system application, thus we can bypass
+5. The server identify the call in step 1 as issued from a system application, thus we can bypass
    the permission check
 
 The difficultly lays that the execution of the server **must be slow enough** so that we have done
