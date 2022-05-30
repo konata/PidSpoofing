@@ -21,17 +21,18 @@ class MainActivity : AppCompatActivity() {
         const val Key = "Key"
         const val RequestRemain = IBinder.FIRST_CALL_TRANSACTION
         const val RollingTo = IBinder.LAST_CALL_TRANSACTION
+        val Services = listOf(A1::class, A2::class, A3::class)
     }
 
-    private val anchors = LinkedBlockingQueue<Int>()
+    private val trampoline = LinkedBlockingQueue<Int>()
     private val placeholders = mutableListOf<Int>()
     val queue = LinkedBlockingQueue<Int>()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         verticalLayout {
-            button("setup anchor process") {
+            button("setup trampoline process") {
                 onClick {
-                    listOf(A1::class, A2::class, A3::class).map {
+                    Services.map {
                         val intent = Intent(this@MainActivity, it.java)
                         val connection = object : ServiceConnection {
                             override fun onServiceConnected(
@@ -41,8 +42,8 @@ class MainActivity : AppCompatActivity() {
                                 Log.e(TAG, "service-connected: $name")
                                 val args = Parcel.obtain()
                                 val rsp = Parcel.obtain()
-                                service.transact(AnchorService.ReportPid, args, rsp, 0)
-                                anchors.add(rsp.readInt())
+                                service.transact(TrampolineService.ReportPid, args, rsp, 0)
+                                trampoline.add(rsp.readInt())
                                 stopService(intent)
                                 unbindService(this)
                             }
@@ -59,10 +60,10 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     launch(Dispatchers.IO) {
-                        val pid = (0 until 3).map { anchors.take() }
+                        val pid = Services.indices.map { trampoline.take() }
                         placeholders.addAll(pid)
                         withContext(Dispatchers.Main) {
-                            text = "anchor pid: ${pid.joinToString(",")}"
+                            text = "trampoline pid: ${pid.joinToString(",")}"
                         }
                     }
 
@@ -101,7 +102,6 @@ class MainActivity : AppCompatActivity() {
                                         Log.e("natsuki", "blocking end")
                                         true
                                     }
-
                                     else -> super.onTransact(code, data, reply, flags)
                                 }
                             }

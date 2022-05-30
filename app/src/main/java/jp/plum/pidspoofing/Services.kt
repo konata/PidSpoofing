@@ -12,7 +12,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.system.exitProcess
 
-abstract class AnchorService : Service() {
+abstract class TrampolineService : Service() {
     companion object {
         const val ReportPid = FIRST_CALL_TRANSACTION
         const val Suicide = ReportPid + 1
@@ -21,8 +21,8 @@ abstract class AnchorService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int) = START_NOT_STICKY
 
     override fun onBind(intent: Intent?) = object : Binder() {
-        override fun onTransact(code: Int, data: Parcel?, reply: Parcel, flags: Int): Boolean {
-            return if (code == ReportPid) {
+        override fun onTransact(code: Int, data: Parcel?, reply: Parcel, flags: Int) =
+            if (code == ReportPid) {
                 reply.writeInt(android.os.Process.myPid())
                 GlobalScope.launch(Dispatchers.IO) {
                     Log.e(TAG, "pid:${android.os.Process.myPid()} suiciding")
@@ -34,10 +34,9 @@ abstract class AnchorService : Service() {
             } else {
                 super.onTransact(code, data, reply, flags)
             }
-        }
     }
 }
 
-class A1 : AnchorService()
-class A2 : AnchorService()
-class A3 : AnchorService()
+class A1 : TrampolineService()
+class A2 : TrampolineService()
+class A3 : TrampolineService()

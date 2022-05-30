@@ -1,7 +1,6 @@
 package jp.plum.pidspoofing
 
 import android.app.ActivityThread
-import android.content.Intent
 import android.content.pm.PackageManager.MATCH_SYSTEM_ONLY
 import android.util.Log
 import java.util.Collections.min
@@ -21,7 +20,7 @@ object Roller {
         return input.readLine().toInt()
     }
 
-    fun toPid(pid: Int, anchors: List<Int>) = sequence {
+    fun toPid(pid: Int, trampoline: List<Int>) = sequence {
         val first = spawn()
         yieldAll(listOf(first, first))
         while (true) {
@@ -38,10 +37,10 @@ object Roller {
                 false
             }
             current in (last + 1) until pid -> {
-                Log.d(TAG, "Inc: $current, target:$pid anchor:$anchors")
-                if (current >= min(anchors)) {
-                    Log.e(TAG, "will spawn 10 processes to spoofing $anchors")
-                    spawnSystemProcess(anchors.size)
+                Log.d(TAG, "Inc: $current, target:$pid trampoline:$trampoline")
+                if (current >= min(trampoline)) {
+                    Log.e(TAG, "will spawn 10 processes to spoofing $trampoline")
+                    spawnSystemProcess(trampoline.size)
                     true
                 } else false
             }
